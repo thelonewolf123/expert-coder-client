@@ -119,14 +119,11 @@ export default {
       }
     },
     async shareCode() {
-      const result = await fetch("/api/code", {
-        method: "POST",
+      const data = await this.$axios.post("/code", { title: this.title, code: this.code },{
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: this.title, code: this.code }),
+        }
       });
-      let data = await result.json();
       if (data) {
         console.log(data);
       } else {
