@@ -24,11 +24,9 @@ export default {
   },
   mounted() {
     let self = this;
-    fetch("/api/videos")
-      .then((response) => response.json())
-      .then((videos) => {
-        self.videos = videos;
-      });
+    this.$axios.get("/videos").then((videos) => {
+      self.videos = videos;
+    });
   },
   methods: {
     navigateToPlayer(video) {
@@ -51,6 +49,6 @@ ul {
   list-style: none;
 }
 .margin-10 {
-    margin-top: 50px;
+  margin-top: 50px;
 }
 </style>

@@ -3,7 +3,12 @@
     <splitpanes class="default-theme" horizontal style="height: 600px">
       <pane class="grid-content" max-size="100" min-size="0">
         <div style="height: 480px">
-          <editor :title.sync="title" :code.sync="code"  :showControls="true" :initCode="code"/>
+          <editor
+            :title.sync="title"
+            :code.sync="code"
+            :showControls="true"
+            :initCode="code"
+          />
         </div>
       </pane>
       <pane class="grid-content" max-size="90" min-size="0" size="20">
@@ -34,15 +39,14 @@ export default {
     };
   },
   mounted() {
-    if(this.$route.name  === "Code") {
-    this.$route.params.id && this.getCode(this.$route.params.id);
+    if (this.$route.name === "Code") {
+      this.$route.params.id && this.getCode(this.$route.params.id);
     }
     this.title = "Introduction to python";
   },
   methods: {
     async getCode(id) {
-      let result = await fetch(`/api/code/${id}`);
-      let data = await result.json();
+      let data = await this.$axios.get(`/api/code/${id}`);
       console.log(data);
       this.title = data.title;
       this.code = data.code;

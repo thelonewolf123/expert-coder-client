@@ -72,7 +72,7 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-    recordEvent({ state, data }) {
+    async recordEvent({ state, data }) {
       this.shareCodeVisible = state;
 
       console.log("recording event");
@@ -81,24 +81,17 @@ export default {
         let formData = new FormData();
         formData.append("fname", this.title);
         formData.append("data", data);
-        fetch("api/file", {
-          method: "POST",
-          body: formData,
-        })
-          .then((res) => res.json())
-          .then((json) => {
-            fetch("/api/video", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                title: this.title,
-                code_json: JSON.stringify(this.codeTimeFrame),
-                video_id: json.id,
-              }),
-            });
-          });
+        let fileResult = await this.$axios.post("/file", formData);
+        let videoData = JSON.stringify({
+          title: this.title,
+          code_json: JSON.stringify(this.codeTimeFrame),
+          video_id: fileResult.id,
+        });
+        await this.$axios.post("/video", videoData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         this.$notify({
           type: "success",
           title: "Video",
@@ -119,11 +112,15 @@ export default {
       }
     },
     async shareCode() {
-      const data = await this.$axios.post("/code", { title: this.title, code: this.code },{
-        headers: {
-          "Content-Type": "application/json",
+      const data = await this.$axios.post(
+        "/code",
+        { title: this.title, code: this.code },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       if (data) {
         console.log(data);
       } else {

@@ -36,9 +36,7 @@
       </splitpanes>
     </div>
     <div class="mt-2 mb-4">
-      <el-button @click="switchToCode" v-if="!showCode">
-        Code
-      </el-button>
+      <el-button @click="switchToCode" v-if="!showCode"> Code </el-button>
       <el-button @click="switchToVideo" v-else> Video </el-button>
     </div>
   </div>
@@ -72,7 +70,7 @@ export default {
         width: 900,
         sources: [],
       },
-      code: '',
+      code: "",
       data: null,
       title: null,
       showCode: false,
@@ -90,16 +88,14 @@ export default {
     let id = this.$route.params.id;
     let self = this;
 
-    fetch(`/api/video/${id}`)
-      .then((res) => res.json())
-      .then((video) => {
-        self.playerOptions.sources.push({
-          type: "video/webm",
-          src: video.url,
-        });
-        self.data = video;
-        self.title = video.title;
+    this.$axios.get(`/video/${id}`).then((video) => {
+      self.playerOptions.sources.push({
+        type: "video/webm",
+        src: video.url,
       });
+      self.data = video;
+      self.title = video.title;
+    });
   },
   methods: {
     playerReadied(player) {
