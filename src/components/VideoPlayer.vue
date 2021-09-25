@@ -74,8 +74,6 @@ export default {
       data: null,
       title: null,
       showCode: false,
-      codeBlockStyling: {},
-      videoBlockStyling: {},
       startTime: 0,
     };
   },
@@ -88,13 +86,13 @@ export default {
     let id = this.$route.params.id;
     let self = this;
 
-    this.$axios.get(`/video/${id}`).then((video) => {
+    this.$axios.get(`/video/${id}`).then(({ data }) => {
       self.playerOptions.sources.push({
         type: "video/webm",
-        src: video.url,
+        src: data.url,
       });
-      self.data = video;
-      self.title = video.title;
+      self.data = data;
+      self.title = data.title;
     });
   },
   methods: {

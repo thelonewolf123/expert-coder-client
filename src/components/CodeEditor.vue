@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     async getCode(id) {
-      let data = await this.$axios.get(`/api/code/${id}`);
+      let { data } = await this.$axios.get(`/code/${id}`);
       console.log(data);
       this.title = data.title;
       this.code = data.code;

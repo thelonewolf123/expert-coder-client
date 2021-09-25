@@ -81,11 +81,11 @@ export default {
         let formData = new FormData();
         formData.append("fname", this.title);
         formData.append("data", data);
-        let fileResult = await this.$axios.post("/file", formData);
+        let { data } = await this.$axios.post("/file", formData);
         let videoData = JSON.stringify({
           title: this.title,
           code_json: JSON.stringify(this.codeTimeFrame),
-          video_id: fileResult.id,
+          video_id: data.id,
         });
         await this.$axios.post("/video", videoData, {
           headers: {
@@ -112,7 +112,7 @@ export default {
       }
     },
     async shareCode() {
-      const data = await this.$axios.post(
+      const { data } = await this.$axios.post(
         "/code",
         { title: this.title, code: this.code },
         {

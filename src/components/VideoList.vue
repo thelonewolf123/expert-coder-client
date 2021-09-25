@@ -24,8 +24,8 @@ export default {
   },
   mounted() {
     let self = this;
-    this.$axios.get("/videos").then((videos) => {
-      self.videos = videos;
+    this.$axios.get("/videos").then(({ data }) => {
+      self.videos = data;
     });
   },
   methods: {
