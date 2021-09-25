@@ -38,6 +38,7 @@ export default {
       this.recorder.onstop = () => {
         const blob = new Blob(chunks, { type: "video/webm" });
         this.$emit("recordEvent", { state: true, data: blob });
+        console.log("data -> ", blob);
         // const videoURL = URL.createObjectURL(blob);
         // this.video = videoURL;
         this.isRecording = false;

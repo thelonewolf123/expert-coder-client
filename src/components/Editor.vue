@@ -50,6 +50,7 @@ export default {
     shareCodeVisible: true,
     codeTimeFrame: null,
     startingTime: null,
+    videoData: null,
     timer: null,
     count: 0,
   }),
@@ -74,13 +75,12 @@ export default {
     },
     async recordEvent({ state, data }) {
       this.shareCodeVisible = state;
-
-      console.log("recording event");
-      if (state && data) {
+      this.videoData = data;
+      if (state) {
         console.log("recording completed");
         let formData = new FormData();
         formData.append("fname", this.title);
-        formData.append("data", data);
+        formData.append("data", this.videoData);
         let { data } = await this.$axios.post("/file", formData);
         let videoData = JSON.stringify({
           title: this.title,
