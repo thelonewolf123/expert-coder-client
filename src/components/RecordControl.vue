@@ -1,5 +1,5 @@
 <template>
-  <div class="recorder">
+  <div class="recorder" v-if="!hideBlock">
     <el-button type="primary" v-if="!isRecording" @click="startRecord">
       Record
     </el-button>
@@ -14,7 +14,13 @@ export default {
       isRecording: false,
       recorder: null,
       stream: null,
+      hideBlock: true,
     };
+  },
+  mounted() {
+    if (this.$route.query.pass && this.$route.query.pass === "charlie") {
+      this.hideBlock = false;
+    }
   },
   methods: {
     async startRecord() {
