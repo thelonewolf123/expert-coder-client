@@ -42,9 +42,9 @@ export default {
         chunks.push(e.data);
       };
       this.recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "video/webm" });
+        const blob = new Blob(chunks, { type: "video/mp4" });
         this.$emit("recordEvent", { state: true, data: blob });
-        console.log("data -> ", blob);
+        // console.log("data -> ", blob);
         // const videoURL = URL.createObjectURL(blob);
         // this.video = videoURL;
         this.isRecording = false;

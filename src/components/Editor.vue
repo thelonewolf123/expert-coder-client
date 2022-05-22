@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="wrapper">
-      <h1>{{ title }}</h1>
+      <h1 v-if="!hideTitle">{{ title }}</h1>
       <div class="share-code" v-if="showControls">
         <record-control @recordEvent="recordEvent" />
         <div v-if="shareCodeVisible">
@@ -38,7 +38,7 @@ import VueAceEditor from "./VueAceEditor.vue";
 import RecordControl from "./RecordControl.vue";
 
 export default {
-  props: ["title", "code", "showControls"],
+  props: ["title", "code", "showControls", "hideTitle"],
   components: {
     VueAceEditor,
     RecordControl,

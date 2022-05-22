@@ -1,20 +1,7 @@
 <template>
   <div class="interpreter">
     <div class="grid-content">
-      <el-select
-        v-model="codeEngine"
-        placeholder="Code Engine"
-        @change="selectCodeEngine"
-      >
-        <el-option
-          v-for="item in codeEngineList"
-          :key="item"
-          :label="item"
-          :value="item"
-        >
-        </el-option>
-      </el-select>
-      <el-button type="danger" @click="clearOutput" class="margin-10">
+      <el-button type="danger" @click="clearOutput">
         Clear
       </el-button>
       <el-button
@@ -35,110 +22,44 @@
           {{ res.result }}
         </div>
         <div v-else class="error">
-          {{ res.error.error }}
+          {{ res.error }}
         </div>
       </div>
     </el-row>
-    <!-- <div class="input-area">
-      <el-input v-model="inputData" :placeholder="inputPrompt" class="input-box">
-        <el-button icon="el-icon-caret-right" class="button" slot="append" @click="updateInput">
-        </el-button>
-      </el-input>
-    </div> -->
   </div>
 </template>
 
 <script>
-import { runCode, setEngine, setOptions } from "client-side-python-runner";
 import { v4 } from "uuid";
+import runPythonCode from "../lib/pythonInterpereter";
 
 export default {
-  props: ["code"],
+  props: ["code", "getStdin"],
   data() {
     return {
       isPythonLoaded: true,
       output: [],
       inputData: null,
-      inputPrompt: null,
-      codeEngine: "skulpt",
-      codeEngineList: ["skulpt", "pyodide", "brython"],
     };
   },
-  mounted() {
-    let self = this;
-    setOptions({
-      output: self.updateOutput, // Output from print(...)-functions
-      error: self.updateError, // Throws an exception unless this is set to a function
-      input: window.prompt, // How to feed the input(...)-function
-      pythonVersion: 3, // Preferred version
-      loadVariablesBeforeRun: true,
-      storeVariablesAfterRun: true,
-      onLoading: () => {
-        self.isPythonLoaded = false;
-      },
-      onLoaded: (engine) => {
-        console.log("Python loaded");
-        console.log(engine);
-        // if (engine === "pyodide") {
-        //   console.log(engine);
-        //   window.pyodide
-        //     .loadPackage("micropip")
-        //     .then(() => {
-        //       self.isPythonLoaded = true;
-        //     })
-        //     .catch((err) => {
-        //       console.log(err);
-        //     });
-        // } else {
-        self.isPythonLoaded = true;
-        // }
-      },
-    });
-    setEngine("skulpt");
-  },
   methods: {
-    executeScript() {
-      this.output = [];
-      runCode(this.code);
-    },
-    updateOutput(output) {
-      this.output.push({ result: output, id: v4() });
-    },
-    updateError(error) {
-      this.output.push({ error: error, id: v4() });
+    async executeScript() {
+      this.isPythonLoaded = false;
+      let { error, output, stderr } = await runPythonCode(this.code, this.getStdin(), "");
+      if (!error) {
+        this.output = output.map((out) => {
+          return { id: v4(), result: out };
+        });
+      } else {
+        this.output = stderr.map((err) => {
+          return { id: v4(), error: err };
+        });
+      }
+      this.isPythonLoaded = true;
     },
     clearOutput() {
       this.output = [];
     },
-    selectCodeEngine() {
-      setEngine(this.codeEngine);
-    },
-    // async getInput(text) {
-    //   this.inputPrompt = text;
-    //   this.isWaitingForInput = true;
-    //   await this.waitUntil(this.waitingForInput);
-    //   let data = this.inputData
-    //   this.inputData = ""
-    //   return data;
-    // },
-    // updateInput() {
-    //   this.isWaitingForInput = false;
-    // },
-    // waitingForInput() {
-    //   return this.isWaitingForInput;
-    // },
-    // async waitUntil(condition) {
-    //   return new Promise((resolve) => {
-    //     let interval = setInterval(() => {
-    //       if (!condition()) {
-    //         return;
-    //       }
-
-    //       clearInterval(interval);
-    //       resolve();
-    //     }, 100);
-    //   });
-    // },
   },
 };
 </script>
@@ -146,25 +67,21 @@ export default {
 <style scoped>
 .interpreter {
   overflow-y: auto;
-  padding: 5px;
-  height: 100%;
+  height: calc(100vh - 600px);
   background-color: #fafafa;
+  position: relative;
 }
 
-.bg-purple-dark {
-  background: #99a9bf;
-}
-.bg-purple {
-  background: #d3dce6;
+.input-area {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
 }
 
 .output {
   padding-top: 10px;
   margin: 5px;
-}
-
-.margin-10 {
-  margin-left: 10px;
 }
 
 .error {

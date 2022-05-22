@@ -1,13 +1,10 @@
 <template>
-  <div class="container">
-    <div class="margin-10"></div>
-
+  <div>
     <video-player
       v-bind:class="{
         'video-player-box': true,
         'd-flex': !showCode,
         'd-none': showCode,
-        'justify-content-center': true,
       }"
       ref="videoPlayer"
       :options="playerOptions"
@@ -19,45 +16,33 @@
       @ready="playerReadied"
     >
     </video-player>
-    <div v-if="showCode">
-      <splitpanes class="default-theme" horizontal style="height: 600px">
-        <pane class="grid-content" max-size="100" min-size="0">
-          <div style="height: 480px">
-            <editor
-              :title.sync="title"
-              :code.sync="code"
-              :showControls="false"
-            />
-          </div>
-        </pane>
-        <pane class="grid-content" max-size="90" min-size="0" size="20">
-          <interpreter :code="code" />
-        </pane>
-      </splitpanes>
-    </div>
-    <div class="mt-2 mb-4">
-      <el-button @click="switchToCode" v-if="!showCode"> Code </el-button>
-      <el-button @click="switchToVideo" v-else> Video </el-button>
+    <div v-if="showCode" class="code-editor-section">
+      <code-editor
+        :title.sync="title"
+        :code.sync="code"
+        :hideTitle="true"
+        :showControls="false"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import "video.js/dist/video-js.css";
+import "@videojs/themes/dist/fantasy/index.css";
 import { videoPlayer } from "vue-video-player";
-import Editor from "./Editor.vue";
-import Interpreter from "./Interpreter.vue";
-import { Splitpanes, Pane } from "splitpanes";
-import "splitpanes/dist/splitpanes.css";
+import CodeEditor from "@/components/CodeEditor.vue";
 
 export default {
+  props: ["id", "showCode"],
   components: {
     videoPlayer,
-    Editor,
-    Interpreter,
-    Splitpanes,
-    Pane,
-    // VideoList,
+    CodeEditor,
+  },
+  watch: {
+    id() {
+      this.initPlayer();
+    },
   },
   data() {
     return {
@@ -73,7 +58,6 @@ export default {
       code: "",
       data: null,
       title: null,
-      showCode: false,
       startTime: 0,
     };
   },
@@ -83,29 +67,25 @@ export default {
     },
   },
   mounted() {
-    let id = this.$route.params.id;
-    let self = this;
-
-    this.$axios.get(`/video/${id}`).then(({ data }) => {
-      self.playerOptions.sources.push({
-        type: "video/webm",
-        src: data.url,
-      });
-      self.data = data;
-      self.title = data.title;
-    });
+    this.initPlayer();
   },
   methods: {
     playerReadied(player) {
       console.log("the player is readied", player);
     },
-    switchToCode() {
-      console.log("switchToCodeOrVideo, showCode -> ", this.showCode);
-      this.showCode = true;
-    },
-    switchToVideo() {
-      console.log("switchToCodeOrVideo, showCode -> ", this.showCode);
-      this.showCode = false;
+    initPlayer() {
+      let self = this;
+
+      this.$axios.get(`/video/${this.id}`).then(({ data }) => {
+        self.playerOptions.sources = [
+          {
+            type: "video/webm",
+            src: data.url,
+          },
+        ];
+        self.data = data;
+        self.title = data.title;
+      });
     },
     pauseEvent(player) {
       console.log("pause event", player);
@@ -126,8 +106,8 @@ export default {
 };
 </script>
 
-<style>
-.margin-10 {
-  margin-top: 50px;
+<style scoped>
+.code-editor-section {
+  width: 900px;
 }
 </style>
